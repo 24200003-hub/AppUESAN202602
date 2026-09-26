@@ -1,5 +1,6 @@
 package dev.lchang.appuesan.presentation.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,8 +18,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import dev.lchang.appuesan.data.remote.FirebaseAuthManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(navController: NavController)
@@ -27,6 +33,9 @@ fun RegisterScreen(navController: NavController)
     var name by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+
 
     Column(
         modifier = Modifier
@@ -73,7 +82,17 @@ fun RegisterScreen(navController: NavController)
         Button(
             enabled = password == confirmPassword,
             onClick = {
-                navController.navigate("login")
+                CoroutineScope(Dispatchers.Main).launch {
+                    val result = FirebaseAuthManager.registerUser(name, email, password)
+                    if(result.isSuccess)
+                        navController.navigate("login")
+                    else {
+                        //Toast message
+                        val error = result.exceptionOrNull()?.message ?:"Error desconocido"
+                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                    }
+                }
+
             }
         )
         {
