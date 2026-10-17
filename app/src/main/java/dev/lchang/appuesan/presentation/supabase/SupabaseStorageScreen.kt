@@ -120,4 +120,13 @@ fun SupabaseStorageScreen() {
         }
     }
 
+    /*
+    * CREATE POLICY "Permitir subir imágenes"
+ON storage.objects
+FOR insert
+TO anon
+WITH CHECK (
+  bucket_id = 'imagenes'
+)*/
+
 }
